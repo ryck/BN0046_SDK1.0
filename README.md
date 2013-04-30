@@ -5,7 +5,7 @@ BN0046
 
 I just try to mimic the classy and elegant <a href="http://www.braun-clocks.com/watch/BN0046BKBKG">Braun BN0046</a> watch into a Pebble watchface.
 
-I even added the date and the moon pashe free of charge! They are easily configurable in the source code.
+I even added the date and the moon phase free of charge! They are easily configurable in the source code.
 
 It's my first watchface, so still learning and many things to improve, but it's already usable.
 
