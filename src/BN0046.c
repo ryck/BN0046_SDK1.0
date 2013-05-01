@@ -79,7 +79,7 @@ int get_moon_phase(int y, int m, int d) {
     calculates the moon phase (0-7), accurate to 1 segment.
     0 = > new moon.
     4 => full moon.
-    */
+  */
 
   int c,e;
   double jd;
@@ -136,19 +136,19 @@ void load_digit_image_into_slot(int slot_number, int digit_value) {
   int y;
   if(slot_number == 0) {
     x = 4;
-  y = 54;
+    y = 54;
   }
   if(slot_number == 1) {
-  x = 34;
-  y = 54;
+    x = 34;
+    y = 54;
   }
   if(slot_number == 2) {
-  x = 74;
-  y = 54;
+    x = 74;
+    y = 54;
   }
   if(slot_number == 3) {
-  x = 105;
-  y = 54;
+    x = 105;
+    y = 54;
   }
 
   image_containers[slot_number].layer.layer.frame.origin.x = x;
@@ -166,7 +166,7 @@ void unload_digit_image_from_slot(int slot_number) {
 
      Can handle being called on an already empty slot.
 
-   */
+  */
 
   if (image_slot_state[slot_number] != EMPTY_SLOT) {
     layer_remove_from_parent(&image_containers[slot_number].layer.layer);
@@ -188,7 +188,7 @@ void display_value(unsigned short value, unsigned short row_number, bool show_fi
      Includes optional blanking of first leading zero,
      i.e. displays ' 0' rather than '00'.
 
-   */
+  */
   value = value % 100; // Maximum of two digits per row.
 
   // Column order is: | Column 0 | Column 1 |
