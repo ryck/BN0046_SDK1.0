@@ -204,12 +204,44 @@ void display_value(unsigned short value, unsigned short row_number, bool show_fi
   }
 }
 
-void update_display(PblTm *tick_time) {
+void update_display_seconds(PblTm *tick_time) {
+    static char seconds_text[] = "00";
+    string_format_time(seconds_text, sizeof(seconds_text), "%S", tick_time);
+    text_layer_set_text(&seconds, seconds_text);
+}
 
-  static char am_pm_text[] = "P";
+void update_display_minutes(PblTm *tick_time) {
+    display_value(tick_time->tm_min, 1, true);
+}
 
+void update_display_hours(PblTm *tick_time) {
+    static char am_pm_text[] = "P";
+
+    display_value(get_display_hour(tick_time->tm_hour), 0, false);
+    // AM/PM
+    string_format_time(am_pm_text, sizeof(am_pm_text), "%p", tick_time);
+
+    if (!clock_is_24h_style()) {
+      text_layer_set_text(&ampm, am_pm_text);
+    }
+}
+
+void update_display_day(PblTm *tick_time) {
+    // Day
+    static char date_text[] = "00";
+    string_format_time(date_text, sizeof(date_text), "%e", tick_time);
+    text_layer_set_text(&date, date_text);
+}
+
+void update_display_month(PblTm *tick_time) {
+    // Month
+    static char month_text[] = "AAA";
+    string_format_time(month_text, sizeof(month_text), "%b", tick_time);
+    text_layer_set_text(&month, month_text);
+}
+
+void update_display_moon(PblTm *tick_time) {
   // Moon
-  #if SHOW_MOON
     int year_number = 2012;
     int month_number = 01;
     int day_number = 01;
@@ -220,41 +252,47 @@ void update_display(PblTm *tick_time) {
     char *temp = itoa(get_moon_phase(year_number, month_number, day_number));
 
     text_layer_set_text(&moon, temp);
-  #endif
+}
 
-  // Date
-  #if SHOW_DATE
-    static char month_text[] = "AAA";
-    static char date_text[] = "00";
-    string_format_time(month_text, sizeof(month_text), "%b", tick_time);
-    string_format_time(date_text, sizeof(date_text), "%e", tick_time);
-    text_layer_set_text(&month, month_text);
-    text_layer_set_text(&date, date_text);
-  #endif
+void update_display(PblTm *tick_time) {
 
-  // Seconds
-  #if SHOW_SECONDS
-    static char seconds_text[] = "00";
-    string_format_time(seconds_text, sizeof(seconds_text), "%S", tick_time);
-    text_layer_set_text(&seconds, seconds_text);
-  #endif
-
-  // AM/PM
-  string_format_time(am_pm_text, sizeof(am_pm_text), "%p", tick_time);
-
-  if (!clock_is_24h_style()) {
-  text_layer_set_text(&ampm, am_pm_text);
-  }
-
-  display_value(get_display_hour(tick_time->tm_hour), 0, false);
-  display_value(tick_time->tm_min, 1, true);
+  update_display_seconds(tick_time);
+  update_display_minutes(tick_time);
+  update_display_hours(tick_time);
+  update_display_day(tick_time);
+  update_display_month(tick_time);
+  update_display_moon(tick_time);
 }
 
 void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
   (void)t;
   (void)ctx;
 
-  update_display(t->tick_time);
+
+  if ((t->units_changed & SECOND_UNIT) != 0 && SHOW_SECONDS) {
+    update_display_seconds(t->tick_time);
+  }
+
+  if ((t->units_changed & MINUTE_UNIT) != 0) {
+    update_display_minutes(t->tick_time);
+  }
+
+  if ((t->units_changed & HOUR_UNIT) != 0) {
+    update_display_hours(t->tick_time);
+  }
+
+  if ((t->units_changed & DAY_UNIT) != 0) {
+    #if SHOW_DATE
+      update_display_day(t->tick_time);
+    #endif
+    #if SHOW_MOON
+      update_display_moon(t->tick_time);
+    #endif
+  }
+
+  if ((t->units_changed & MONTH_UNIT) != 0 && SHOW_DATE) {
+    update_display_month(t->tick_time);
+  }
 
 }
 
