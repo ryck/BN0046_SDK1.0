@@ -141,19 +141,19 @@ void load_digit_image_into_slot(int slot_number, int digit_value) {
   int x;
   int y;
   if(slot_number == 0) {
-    x = 4;
+    x = 2;   // 4
     y = 54;
   }
   if(slot_number == 1) {
-    x = 34;
+    x = 32;  // 34
     y = 54;
   }
   if(slot_number == 2) {
-    x = 74;
+    x = 72;  // 74
     y = 54;
   }
   if(slot_number == 3) {
-    x = 105;
+    x = 103; // 105
     y = 54;
   }
 
@@ -234,15 +234,15 @@ void update_display_hours(PblTm *tick_time) {
 
 void update_display_day(PblTm *tick_time) {
     // Day
-    static char date_text[] = "00";
-    string_format_time(date_text, sizeof(date_text), "%e", tick_time);
+    static char date_text[] = "00.00";
+    string_format_time(date_text, sizeof(date_text), "%m-%d", tick_time);
     text_layer_set_text(&date, date_text);
 }
 
 void update_display_month(PblTm *tick_time) {
     // Month
     static char month_text[] = "AAA";
-    string_format_time(month_text, sizeof(month_text), "%b", tick_time);
+    string_format_time(month_text, sizeof(month_text), "%a", tick_time);
     text_layer_set_text(&month, month_text);
 }
 
@@ -315,10 +315,17 @@ void LayerSetup(PblTm *tick_time) {
   layer_init(&parent, GRect(0, 0, 144, 168));
 
   text_layer_init(&month, GRect(-25, 25, 60, 30));   // Month
+#if STOUGH_LAYOUT
+  text_layer_init(&date, GRect(45, 25, 60, 30));  // Date
+  text_layer_init(&ampm, GRect(112, 48, 30, 30));  // AM/PM
+  text_layer_init(&seconds, GRect(92, 95, 60, 60));  // Date
+  text_layer_init(&moon, GRect(108, 5, 40, 40));  // Date
+#else
   text_layer_init(&date, GRect(48, 25, 30, 30));  // Date
   text_layer_init(&ampm, GRect(5, 100, 30, 30));  // AM/PM
   text_layer_init(&seconds, GRect(92, 94, 60, 60));  // Date
   text_layer_init(&moon, GRect(105, 5, 60, 60));  // Date
+#endif 
 
 
   text_layer_set_font(&month, custom_font21);
@@ -355,7 +362,7 @@ void LayerSetup(PblTm *tick_time) {
   layer_add_child(&window.layer, &parent);
 
   bmp_init_container(RESOURCE_ID_IMAGE_COLON, &cursor_layer);
-  cursor_layer.layer.layer.frame.origin.x = 64;
+  cursor_layer.layer.layer.frame.origin.x = 63;  // 64
   cursor_layer.layer.layer.frame.origin.y = 60;
   layer_add_child(&parent, &cursor_layer.layer.layer);
 
