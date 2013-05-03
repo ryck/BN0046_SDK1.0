@@ -354,7 +354,7 @@ void LayerSetup(PblTm *tick_time) {
   #endif
   text_layer_init(&moon, GRect(105, 5, 60, 60));     // Moon
   text_layer_init(&ampm, GRect(5, 100, 30, 30));     // AM/PM
-  text_layer_init(&seconds, GRect(92, 94, 60, 60));  // Seconds
+  text_layer_init(&seconds, GRect(72, 92, 60, 60));  // Seconds
 
   text_layer_set_font(&month, custom_font21);
   text_layer_set_font(&date, custom_font21);
@@ -377,7 +377,7 @@ void LayerSetup(PblTm *tick_time) {
   text_layer_set_text_alignment(&month, GTextAlignmentRight);
   text_layer_set_text_alignment(&date, GTextAlignmentLeft);
   text_layer_set_text_alignment(&ampm, GTextAlignmentLeft);
-  text_layer_set_text_alignment(&seconds, GTextAlignmentLeft);
+  text_layer_set_text_alignment(&seconds, GTextAlignmentRight);
   text_layer_set_text_alignment(&moon, GTextAlignmentLeft);
 
   layer_add_child(&parent, &date.layer);
