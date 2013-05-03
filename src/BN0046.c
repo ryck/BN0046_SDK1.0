@@ -17,16 +17,18 @@ PBL_APP_INFO(MY_UUID,
 
 Window window;
 
-Window window;
-
 Layer parent;           // Parent Layer
-BmpContainer cursor_layer;    // Seconds Layer
+BmpContainer cursor_layer;    // Colon Layer
 
 TextLayer month; // Month Layer
 TextLayer date; // Date Layer
 TextLayer ampm; // AM/PM Layer
 TextLayer seconds; // Seconds Layer
 TextLayer moon; // Moon Layer
+
+GFont custom_font21;
+GFont custom_font45;
+GFont moon_font30;
 
 AppTimerHandle timer_handle;
 
@@ -74,13 +76,18 @@ char *itoa(int num)
   return string;
 }
 
+// Full Moon Date in UTC: Jan 27  04:38, 2013
+// ref: http://eclipse.gsfc.nasa.gov/phase/phase2001gmt.html
+//   Convert to Los Angeles Time: T_1 = Jan 26  20:35, 2013 PST
+//     T_1 -> JD_1 = 2456319.357639
+#define JD_MOON_EPOCH_DELTA 735262.8576
+
 int get_moon_phase(int y, int m, int d) {
   /*
     calculates the moon phase (0-7), accurate to 1 segment.
     0 = > new moon.
     4 => full moon.
   */
-
   int c,e;
   double jd;
   int b;
@@ -91,16 +98,15 @@ int get_moon_phase(int y, int m, int d) {
   }
   ++m;
   c = 365.25*y;
-  e = 30.6*m;
-  jd = c+e+d-694039.09;  /* jd is total days elapsed */
-  jd /= 29.53;           /* divide by the moon cycle (29.53 days) */
-  b = jd;      /* int(jd) -> b, take integer part of jd */
-  jd -= b;       /* subtract integer part to leave fractional part of original jd */
+  e = 30.438*m;  // corrected to (365.25/12) orig = 30.6
+  jd = c+e+d-JD_MOON_EPOCH_DELTA;  /* jd is total days elapsed */
+  jd /= 29.53059; /* divide by the moon cycle (29.53 days) */
+  b = (int) jd;   /* int(jd) -> b, take integer part of jd */
+  jd -= b; /* subtract integer part to leave fractional part of original jd */
   b = jd*8 + 0.5;    /* scale fraction from 0-8 and round by adding 0.5 */
   b = b & 7;       /* 0 and 8 are the same so turn 8 into 0 */
   return b;
 }
-
 
 unsigned short get_display_hour(unsigned short hour) {
 
@@ -215,7 +221,7 @@ void update_display_minutes(PblTm *tick_time) {
 }
 
 void update_display_hours(PblTm *tick_time) {
-    static char am_pm_text[] = "P";
+    static char am_pm_text[] = "PM";
 
     display_value(get_display_hour(tick_time->tm_hour), 0, false);
     // AM/PM
@@ -299,19 +305,19 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
 void LayerSetup(PblTm *tick_time) {
 
   //21pt
-  GFont custom_font21 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL21));
+  custom_font21 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL21));
   //40pt
-  GFont custom_font45 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL45));
+  custom_font45 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL45));
   //Moon
-  GFont moon_font30 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_CLIMAICONS30));
+  moon_font30 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_CLIMAICONS30));
 
   //Init the parent layer at (0,0) and size (144 X 168)
   layer_init(&parent, GRect(0, 0, 144, 168));
 
   text_layer_init(&month, GRect(-25, 25, 60, 30));   // Month
   text_layer_init(&date, GRect(48, 25, 30, 30));  // Date
-  text_layer_init(&ampm, GRect(114, 48, 30, 30));  // AM/PM
-  text_layer_init(&seconds, GRect(92, 95, 60, 60));  // Date
+  text_layer_init(&ampm, GRect(5, 100, 30, 30));  // AM/PM
+  text_layer_init(&seconds, GRect(92, 94, 60, 60));  // Date
   text_layer_init(&moon, GRect(105, 5, 60, 60));  // Date
 
 
@@ -335,7 +341,7 @@ void LayerSetup(PblTm *tick_time) {
 
   text_layer_set_text_alignment(&month, GTextAlignmentRight);
   text_layer_set_text_alignment(&date, GTextAlignmentLeft);
-  text_layer_set_text_alignment(&ampm, GTextAlignmentRight);
+  text_layer_set_text_alignment(&ampm, GTextAlignmentLeft);
   text_layer_set_text_alignment(&seconds, GTextAlignmentLeft);
   text_layer_set_text_alignment(&moon, GTextAlignmentLeft);
 
@@ -355,6 +361,20 @@ void LayerSetup(PblTm *tick_time) {
 
 
   update_display(tick_time);
+}
+
+void handle_deinit(AppContextRef ctx) {
+  (void)ctx;
+
+  // Bitmaps
+  bmp_deinit_container(&cursor_layer); // Colon
+  for (int i = 0; i < TOTAL_IMAGE_SLOTS; i++)
+    bmp_deinit_container(&image_containers[i]);
+
+  // Fonts
+  fonts_unload_custom_font(custom_font21);
+  fonts_unload_custom_font(custom_font45);
+  fonts_unload_custom_font(moon_font30);
 }
 
 void handle_init(AppContextRef ctx) {
@@ -380,6 +400,7 @@ void pbl_main(void *params) {
 
   PebbleAppHandlers handlers = {
     .init_handler = &handle_init,
+    .deinit_handler = &handle_deinit,
 
   .tick_info = {
     .tick_handler = &handle_second_tick,
