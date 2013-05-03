@@ -400,8 +400,8 @@ void handle_deinit(AppContextRef ctx) {
  
   // Bitmaps
   bmp_deinit_container(&cursor_layer); // Colon
-  for (int i = 0; i < NUMBER_OF_IMAGES; i++)
-    bmp_deinit_container(&image_containers[i]);
+  for (int i = 0; i < TOTAL_IMAGE_SLOTS; i++)
+    bmp_deinit_container(&(image_containers[i]));
                          
   // Fonts
   fonts_unload_custom_font(custom_font21);
@@ -414,11 +414,12 @@ void pbl_main(void *params) {
 
   PebbleAppHandlers handlers = {
     .init_handler = &handle_init,
-
-  .tick_info = {
-    .tick_handler = &handle_second_tick,
-    .tick_units = SECOND_UNIT
-  }
+    .deinit_handler = &handle_deinit,
+    
+    .tick_info = {
+      .tick_handler = &handle_second_tick,
+      .tick_units = SECOND_UNIT
+    }
   };
   app_event_loop(params, &handlers);
 }
