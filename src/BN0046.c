@@ -8,6 +8,7 @@
 #define SHOW_DATE 1
 #define SHOW_SECONDS 1
 
+#define STOUGH_LAYOUT 1
 
 PBL_APP_INFO(MY_UUID,
              "BN0046", "ryck.me",
@@ -416,31 +417,16 @@ void handle_init(AppContextRef ctx) {
 }
 
 
-void handle_deinit(AppContextRef ctx) {
-  (void)ctx;
- 
-  // Bitmaps
-  bmp_deinit_container(&cursor_layer); // Colon
-  for (int i = 0; i < NUMBER_OF_IMAGES; i++)
-    bmp_deinit_container(&image_containers[i]);
-                         
-  // Fonts
-  fonts_unload_custom_font(custom_font21);
-  fonts_unload_custom_font(custom_font45);
-  fonts_unload_custom_font(moon_font30);
-}
-
-
 void pbl_main(void *params) {
 
   PebbleAppHandlers handlers = {
     .init_handler = &handle_init,
     .deinit_handler = &handle_deinit,
-
-  .tick_info = {
-    .tick_handler = &handle_second_tick,
-    .tick_units = SECOND_UNIT
-  }
+    
+    .tick_info = {
+      .tick_handler = &handle_second_tick,
+      .tick_units = SECOND_UNIT
+    }
   };
   app_event_loop(params, &handlers);
 }
