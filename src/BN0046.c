@@ -22,18 +22,18 @@ PBL_APP_INFO(MY_UUID,
 
 Window window;
 
-Layer parent;           // Parent Layer
-BmpContainer cursor_layer;    // Colon Layer
+Layer parent;               // Parent Layer
+BmpContainer cursor_layer;  // Colon Layer
 
 GFont custom_font21;
 GFont custom_font45;
 GFont moon_font30;
 
-TextLayer month; // Month Layer
-TextLayer date; // Date Layer
-TextLayer ampm; // AM/PM Layer
+TextLayer month;   // Month Layer
+TextLayer date;    // Date Layer
+TextLayer ampm;    // AM/PM Layer
 TextLayer seconds; // Seconds Layer
-TextLayer moon; // Moon Layer
+TextLayer moon;    // Moon Layer
 
 AppTimerHandle timer_handle;
 
@@ -89,6 +89,7 @@ char *itoa(int num)
 //     T_1 -> JD_1 = 2415095.59
 // Original Value...
 // #define JD_MOON_EPOCH_DELTA 694039.09
+
 // Full Moon Date in UTC: Jan 27  04:38, 2013
 // ref: http://eclipse.gsfc.nasa.gov/phase/phase2001gmt.html
 //   Convert to Los Angeles Time: T_1 = Jan 26  20:35, 2013 PST
@@ -355,7 +356,6 @@ void LayerSetup(PblTm *tick_time) {
   text_layer_init(&moon, GRect(105, 5, 60, 60));     // Moon
   text_layer_init(&ampm, GRect(5, 100, 30, 30));     // AM/PM
   text_layer_init(&seconds, GRect(92, 94, 60, 60));  // Seconds
-
 
   text_layer_set_font(&month, custom_font21);
   text_layer_set_font(&date, custom_font21);
