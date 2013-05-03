@@ -32,6 +32,10 @@ GFont moon_font30;
 
 AppTimerHandle timer_handle;
 
+GFont custom_font21;
+GFont custom_font45;
+GFont moon_font30;
+
 #define TOTAL_IMAGE_SLOTS 4
 #define NUMBER_OF_IMAGES 10
 #define EMPTY_SLOT -1
@@ -145,7 +149,7 @@ void load_digit_image_into_slot(int slot_number, int digit_value) {
     y = 54;
   }
   if(slot_number == 1) {
-    x = 32;  // 34
+    x = 34;  // 34
     y = 54;
   }
   if(slot_number == 2) {
@@ -362,7 +366,7 @@ void LayerSetup(PblTm *tick_time) {
   layer_add_child(&window.layer, &parent);
 
   bmp_init_container(RESOURCE_ID_IMAGE_COLON, &cursor_layer);
-  cursor_layer.layer.layer.frame.origin.x = 63;  // 64
+  cursor_layer.layer.layer.frame.origin.x = 65;  // 64
   cursor_layer.layer.layer.frame.origin.y = 60;
   layer_add_child(&parent, &cursor_layer.layer.layer);
 
@@ -402,6 +406,22 @@ void handle_init(AppContextRef ctx) {
 
   LayerSetup(&tick_time);
 }
+
+
+void handle_deinit(AppContextRef ctx) {
+  (void)ctx;
+ 
+  // Bitmaps
+  bmp_deinit_container(&cursor_layer); // Colon
+  for (int i = 0; i < NUMBER_OF_IMAGES; i++)
+    bmp_deinit_container(&image_containers[i]);
+                         
+  // Fonts
+  fonts_unload_custom_font(custom_font21);
+  fonts_unload_custom_font(custom_font45);
+  fonts_unload_custom_font(moon_font30);
+}
+
 
 void pbl_main(void *params) {
 
