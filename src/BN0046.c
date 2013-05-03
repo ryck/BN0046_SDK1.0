@@ -20,7 +20,7 @@ Window window;
 Window window;
 
 Layer parent;           // Parent Layer
-BmpContainer cursor_layer;    // Seconds Layer
+BmpContainer cursor_layer;    // Colon Layer
 
 TextLayer month; // Month Layer
 TextLayer date; // Date Layer
@@ -29,6 +29,10 @@ TextLayer seconds; // Seconds Layer
 TextLayer moon; // Moon Layer
 
 AppTimerHandle timer_handle;
+
+GFont custom_font21;
+GFont custom_font45;
+GFont moon_font30;
 
 #define TOTAL_IMAGE_SLOTS 4
 #define NUMBER_OF_IMAGES 10
@@ -139,7 +143,7 @@ void load_digit_image_into_slot(int slot_number, int digit_value) {
     y = 54;
   }
   if(slot_number == 1) {
-    x = 32;  // 34
+    x = 34;  // 34
     y = 54;
   }
   if(slot_number == 2) {
@@ -299,11 +303,11 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
 void LayerSetup(PblTm *tick_time) {
 
   //21pt
-  GFont custom_font21 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL21));
+  custom_font21 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL21));
   //40pt
-  GFont custom_font45 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL45));
+  custom_font45 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_DIGITAL45));
   //Moon
-  GFont moon_font30 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_CLIMAICONS30));
+  moon_font30 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_CLIMAICONS30));
 
   //Init the parent layer at (0,0) and size (144 X 168)
   layer_init(&parent, GRect(0, 0, 144, 168));
@@ -349,7 +353,7 @@ void LayerSetup(PblTm *tick_time) {
   layer_add_child(&window.layer, &parent);
 
   bmp_init_container(RESOURCE_ID_IMAGE_COLON, &cursor_layer);
-  cursor_layer.layer.layer.frame.origin.x = 63;  // 64
+  cursor_layer.layer.layer.frame.origin.x = 65;  // 64
   cursor_layer.layer.layer.frame.origin.y = 60;
   layer_add_child(&parent, &cursor_layer.layer.layer);
 
@@ -375,6 +379,22 @@ void handle_init(AppContextRef ctx) {
 
   LayerSetup(&tick_time);
 }
+
+
+void handle_deinit(AppContextRef ctx) {
+  (void)ctx;
+ 
+  // Bitmaps
+  bmp_deinit_container(&cursor_layer); // Colon
+  for (int i = 0; i < NUMBER_OF_IMAGES; i++)
+    bmp_deinit_container(&image_containers[i]);
+                         
+  // Fonts
+  fonts_unload_custom_font(custom_font21);
+  fonts_unload_custom_font(custom_font45);
+  fonts_unload_custom_font(moon_font30);
+}
+
 
 void pbl_main(void *params) {
 
