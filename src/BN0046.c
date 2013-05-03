@@ -22,6 +22,10 @@ Window window;
 Layer parent;           // Parent Layer
 BmpContainer cursor_layer;    // Colon Layer
 
+GFont custom_font21;
+GFont custom_font45;
+GFont moon_font30;
+
 TextLayer month; // Month Layer
 TextLayer date; // Date Layer
 TextLayer ampm; // AM/PM Layer
@@ -29,10 +33,6 @@ TextLayer seconds; // Seconds Layer
 TextLayer moon; // Moon Layer
 
 AppTimerHandle timer_handle;
-
-GFont custom_font21;
-GFont custom_font45;
-GFont moon_font30;
 
 #define TOTAL_IMAGE_SLOTS 4
 #define NUMBER_OF_IMAGES 10
@@ -78,13 +78,27 @@ char *itoa(int num)
   return string;
 }
 
+// Define Reference (recent) Full Moon
+// Reference Full Moon delta from T_0 = y-m-d 0000-00-00 (or 2 BCE - Dec - 31)
+// ref: http://aa.usno.navy.mil/data/docs/JulianDate.php
+//     T_0 -> JD_0 = 1721056.5
+// Full Moon Date in Desired Timezone: T_1 = March 17, 1900 02:09:36
+//     T_1 -> JD_1 = 2415095.59
+// Original Value...
+// #define JD_MOON_EPOCH_DELTA 694039.09
+
+// Full Moon Date in UTC: Jan 27  04:38, 2013
+// ref: http://eclipse.gsfc.nasa.gov/phase/phase2001gmt.html
+//   Convert to Los Angeles Time: T_1 = Jan 26  20:35, 2013 PST
+//     T_1 -> JD_1 = 2456319.357639
+#define JD_MOON_EPOCH_DELTA 735262.8576
+
 int get_moon_phase(int y, int m, int d) {
   /*
     calculates the moon phase (0-7), accurate to 1 segment.
     0 = > new moon.
     4 => full moon.
   */
-
   int c,e;
   double jd;
   int b;
@@ -95,11 +109,11 @@ int get_moon_phase(int y, int m, int d) {
   }
   ++m;
   c = 365.25*y;
-  e = 30.6*m;
-  jd = c+e+d-694039.09;  /* jd is total days elapsed */
-  jd /= 29.53;           /* divide by the moon cycle (29.53 days) */
-  b = jd;      /* int(jd) -> b, take integer part of jd */
-  jd -= b;       /* subtract integer part to leave fractional part of original jd */
+  e = 30.438*m;  // corrected to (365.25/12) orig = 30.6
+  jd = c+e+d-JD_MOON_EPOCH_DELTA;  /* jd is total days elapsed */
+  jd /= 29.53059; /* divide by the moon cycle (29.53 days) */
+  b = (int) jd;   /* int(jd) -> b, take integer part of jd */
+  jd -= b; /* subtract integer part to leave fractional part of original jd */
   b = jd*8 + 0.5;    /* scale fraction from 0-8 and round by adding 0.5 */
   b = b & 7;       /* 0 and 8 are the same so turn 8 into 0 */
   return b;
