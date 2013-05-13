@@ -77,6 +77,9 @@ char *itoa(int num) {
   else
     return "Unsupported Number";
 
+  if(buff[0] == '\0')
+    return string = "0";
+
   return string;
 }
 
