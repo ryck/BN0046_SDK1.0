@@ -253,7 +253,7 @@ void update_display_day(PblTm *tick_time) {
 #else
     static char date_text[] = "00";
 #endif
-    
+
 #if   WEEKDAY_US_MM_DD           // Show Date in "MM-DD" (US date format)
     string_format_time(date_text, sizeof(date_text), "%m-%d", tick_time);
 #elif WEEKDAY_NON_US_DD_MM       // Show Date in "DD-MM" (INTL_DD_MM)
@@ -261,20 +261,20 @@ void update_display_day(PblTm *tick_time) {
 #else                            // Show Day of Month (no Leading 0)
     string_format_time(date_text, sizeof(date_text), "%e", tick_time);
 #endif
-    
+
     text_layer_set_text(&date, date_text);
 }
 
 void update_display_month(PblTm *tick_time) {
     // Month or Weekday
     static char month_text[] = "AAA";
-    
+
 #if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM) // Show Weekday (3 letter abbrev)
     string_format_time(month_text, sizeof(month_text), "%a", tick_time);
 #else // Show Month (3 letter abbrev)
     string_format_time(month_text, sizeof(month_text), "%b", tick_time);
 #endif
-    
+
     text_layer_set_text(&month, month_text);
 }
 
@@ -352,10 +352,10 @@ void LayerSetup(PblTm *tick_time) {
   text_layer_init(&date, GRect(45, 25, 60, 30));     // Date "XX-XX"
 #else
   text_layer_init(&date, GRect(48, 25, 30, 30));     // Date "DD"
-#endif 
+#endif
   text_layer_init(&moon, GRect(105, 5, 60, 60));     // Moon
   text_layer_init(&ampm, GRect(5, 100, 30, 30));     // AM/PM
-  text_layer_init(&seconds, GRect(92, 94, 60, 60));  // Seconds
+  text_layer_init(&seconds, GRect(90, 94, 60, 60));  // Seconds
 
   text_layer_set_font(&month, custom_font21);
   text_layer_set_font(&date, custom_font21);
@@ -391,7 +391,7 @@ void LayerSetup(PblTm *tick_time) {
   layer_add_child(&window.layer, &parent);
 
   bmp_init_container(RESOURCE_ID_IMAGE_COLON, &cursor_layer);
-  cursor_layer.layer.layer.frame.origin.x = 65;  // 64
+  cursor_layer.layer.layer.frame.origin.x = 64;  // 64
   cursor_layer.layer.layer.frame.origin.y = 60;
   layer_add_child(&parent, &cursor_layer.layer.layer);
 
@@ -438,7 +438,7 @@ void pbl_main(void *params) {
   PebbleAppHandlers handlers = {
     .init_handler = &handle_init,
     .deinit_handler = &handle_deinit,
-    
+
     .tick_info = {
       .tick_handler = &handle_second_tick,
       .tick_units = SECOND_UNIT
