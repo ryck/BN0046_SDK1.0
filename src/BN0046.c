@@ -324,6 +324,7 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
   if ((t->units_changed & DAY_UNIT) != 0) {
     #if SHOW_DATE
       update_display_day(t->tick_time);
+      update_display_month(t->tick_time);
     #endif
     #if SHOW_MOON
       update_display_moon(t->tick_time);
