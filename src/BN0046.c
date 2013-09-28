@@ -301,7 +301,9 @@ void update_display(PblTm *tick_time) {
   update_display_hours(tick_time);
   update_display_day(tick_time);
   update_display_month(tick_time);
-  update_display_moon(tick_time);
+  #if SHOW_MOON
+      update_display_moon(tick_time);
+  #endif  
 }
 
 void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
