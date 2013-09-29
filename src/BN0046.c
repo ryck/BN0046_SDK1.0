@@ -52,8 +52,7 @@ BmpContainer image_containers[TOTAL_IMAGE_SLOTS];
 
 int image_slot_state[TOTAL_IMAGE_SLOTS] = {EMPTY_SLOT, EMPTY_SLOT, EMPTY_SLOT, EMPTY_SLOT};
 
-char *itoa(int num)
-{
+char *itoa(int num) {
   static char buff[20] = {};
   int i = 0, temp_num = num, length = 0;
   char *string = buff;
@@ -77,6 +76,9 @@ char *itoa(int num)
   }
   else
     return "Unsupported Number";
+
+  if(buff[0] == '\0')
+    return string = "0";
 
   return string;
 }
@@ -247,49 +249,49 @@ void update_display_hours(PblTm *tick_time) {
 }
 
 void update_display_day(PblTm *tick_time) {
-    // Day
-#if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM)
-    static char date_text[] = "00.00";
-#else
-    static char date_text[] = "00";
-#endif
+  // Day
+  #if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM)
+      static char date_text[] = "00.00";
+  #else
+      static char date_text[] = "00";
+  #endif
 
-#if   WEEKDAY_US_MM_DD           // Show Date in "MM-DD" (US date format)
-    string_format_time(date_text, sizeof(date_text), "%m-%d", tick_time);
-#elif WEEKDAY_NON_US_DD_MM       // Show Date in "DD-MM" (INTL_DD_MM)
-    string_format_time(date_text, sizeof(date_text), "%d-%m", tick_time);
-#else                            // Show Day of Month (no Leading 0)
-    string_format_time(date_text, sizeof(date_text), "%e", tick_time);
-#endif
+  #if   WEEKDAY_US_MM_DD           // Show Date in "MM-DD" (US date format)
+      string_format_time(date_text, sizeof(date_text), "%m-%d", tick_time);
+  #elif WEEKDAY_NON_US_DD_MM       // Show Date in "DD-MM" (INTL_DD_MM)
+      string_format_time(date_text, sizeof(date_text), "%d-%m", tick_time);
+  #else                            // Show Day of Month (no Leading 0)
+      string_format_time(date_text, sizeof(date_text), "%e", tick_time);
+  #endif
 
     text_layer_set_text(&date, date_text);
 }
 
 void update_display_month(PblTm *tick_time) {
-    // Month or Weekday
-    static char month_text[] = "AAA";
+  // Month or Weekday
+  static char month_text[] = "AAA";
 
-#if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM) // Show Weekday (3 letter abbrev)
-    string_format_time(month_text, sizeof(month_text), "%a", tick_time);
-#else // Show Month (3 letter abbrev)
-    string_format_time(month_text, sizeof(month_text), "%b", tick_time);
-#endif
+  #if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM) // Show Weekday (3 letter abbrev)
+      string_format_time(month_text, sizeof(month_text), "%a", tick_time);
+  #else // Show Month (3 letter abbrev)
+      string_format_time(month_text, sizeof(month_text), "%b", tick_time);
+  #endif
 
-    text_layer_set_text(&month, month_text);
+  text_layer_set_text(&month, month_text);
 }
 
 void update_display_moon(PblTm *tick_time) {
   // Moon
-    int year_number = 2012;
-    int month_number = 01;
-    int day_number = 01;
-    year_number = tick_time->tm_year + 1900;
-    month_number = tick_time->tm_mon;
-    day_number = tick_time->tm_mday;
+  int year_number = 2012;
+  int month_number = 01;
+  int day_number = 01;
+  year_number = tick_time->tm_year + 1900;
+  month_number = tick_time->tm_mon;
+  day_number = tick_time->tm_mday;
 
-    char *temp = itoa(get_moon_phase(year_number, month_number, day_number));
+  char *temp = itoa(get_moon_phase(year_number, month_number, day_number));
 
-    text_layer_set_text(&moon, temp);
+  text_layer_set_text(&moon, temp);
 }
 
 void update_display(PblTm *tick_time) {
@@ -299,7 +301,9 @@ void update_display(PblTm *tick_time) {
   update_display_hours(tick_time);
   update_display_day(tick_time);
   update_display_month(tick_time);
-  update_display_moon(tick_time);
+  #if SHOW_MOON
+      update_display_moon(tick_time);
+  #endif  
 }
 
 void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
@@ -322,6 +326,7 @@ void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
   if ((t->units_changed & DAY_UNIT) != 0) {
     #if SHOW_DATE
       update_display_day(t->tick_time);
+      update_display_month(t->tick_time);
     #endif
     #if SHOW_MOON
       update_display_moon(t->tick_time);
@@ -348,14 +353,14 @@ void LayerSetup(PblTm *tick_time) {
   layer_init(&parent, GRect(0, 0, 144, 168));
 
   text_layer_init(&month, GRect(-25, 25, 60, 30));   // Month/Weekday
-#if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM)
-  text_layer_init(&date, GRect(45, 25, 60, 30));     // Date "XX-XX"
-#else
-  text_layer_init(&date, GRect(48, 25, 30, 30));     // Date "DD"
-#endif
+  #if (WEEKDAY_US_MM_DD || WEEKDAY_NON_US_DD_MM)
+    text_layer_init(&date, GRect(45, 25, 60, 30));     // Date "XX-XX"
+  #else
+    text_layer_init(&date, GRect(48, 25, 30, 30));     // Date "DD"
+  #endif
   text_layer_init(&moon, GRect(105, 5, 60, 60));     // Moon
   text_layer_init(&ampm, GRect(5, 100, 30, 30));     // AM/PM
-  text_layer_init(&seconds, GRect(90, 94, 60, 60));  // Seconds
+  text_layer_init(&seconds, GRect(72, 92, 60, 60));  // Seconds
 
   text_layer_set_font(&month, custom_font21);
   text_layer_set_font(&date, custom_font21);
@@ -378,9 +383,8 @@ void LayerSetup(PblTm *tick_time) {
   text_layer_set_text_alignment(&month, GTextAlignmentRight);
   text_layer_set_text_alignment(&date, GTextAlignmentLeft);
   text_layer_set_text_alignment(&ampm, GTextAlignmentLeft);
-  text_layer_set_text_alignment(&seconds, GTextAlignmentLeft);
+  text_layer_set_text_alignment(&seconds, GTextAlignmentRight);
   text_layer_set_text_alignment(&moon, GTextAlignmentLeft);
-
 
   layer_add_child(&parent, &date.layer);
   layer_add_child(&parent, &month.layer);
@@ -391,10 +395,9 @@ void LayerSetup(PblTm *tick_time) {
   layer_add_child(&window.layer, &parent);
 
   bmp_init_container(RESOURCE_ID_IMAGE_COLON, &cursor_layer);
-  cursor_layer.layer.layer.frame.origin.x = 64;  // 64
+  cursor_layer.layer.layer.frame.origin.x = 65;  // 64
   cursor_layer.layer.layer.frame.origin.y = 60;
   layer_add_child(&parent, &cursor_layer.layer.layer);
-
 
   update_display(tick_time);
 }
