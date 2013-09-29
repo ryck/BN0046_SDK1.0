@@ -27,3 +27,4 @@
 /.waf-1.7.0-9334f7e963bee5410f4fa28728feffdd/
 /.lock-waf_darwin_build
 /.hgignore
+.DS_Store
